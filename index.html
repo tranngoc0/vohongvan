@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special day for special person</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600;700&family=Caveat:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+        .scene {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: fadeIn 1s ease-in-out;
+            background-size: cover;
+            background-position: center;
+        }
+        .scene.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Scene 1 Styles */
+        #scene1{
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .title-container span, #friendName {
+            display: inline-block;
+            font-family: 'Pacifico', cursive;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        }
+        .title-container span {
+            animation: bounce 1.5s ease-in-out infinite;
+            animation-delay: calc(0.08s * var(--i));
+        }
+        @keyframes bounce {
+            0%, 40%, 100% { transform: translateY(0); }
+            20% { transform: translateY(-25px); }
+        }
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 16px;
+            top: -90px;
+            opacity: 0.9;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(105vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Scene 2 Styles */
+        #scene2 {
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.6); 
+            backdrop-filter: blur(5px);
+            perspective: 2500px;
+        }
+        .paper-sheet {
+            width: 90vw;
+            max-width: 800px;
+            height: 90vh;
+            background-color: #fdfdfd;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1), 0 5px 10px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            border: 1px solid #f0f0f0;
+            padding: 40px 50px;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: zoomIn 1s ease-out 0.5s forwards;
+            background-image: linear-gradient(to right, #fdfdfd, #f9f9f9);
+        }
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .paper-content {
+            font-family: 'Caveat', cursive;
+            color: #334155;
+            font-size: 2rem;
+            line-height: 3rem;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 2.9rem, #eaf2fa 3rem);
+            background-size: 100% 3rem;
+            -ms-overflow-style: none; 
+            scrollbar-width: none; 
+        }
+        .paper-content::-webkit-scrollbar {
+            display: none; 
+        }
+        .paper-content span {
+            opacity: 0;
+            animation: fadeInChar 0.05s forwards;
+            animation-delay: var(--delay);
+        }
+        @keyframes fadeInChar {
+            to { opacity: 1; }
+        }
+
+        /* Scene 2.5 Photo Album Styles */
+        #scene2_5 {
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+        #photo-area {
+            width: 100vw;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 2rem;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        .album-photo-container {
+            background: linear-gradient(45deg, #f472b6, #ec4899);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3), inset 0 0 10px rgba(255,255,255,0.3);
+            opacity: 0;
+            transform: scale(0.9);
+            animation: popInPhoto 0.6s ease-out forwards;
+            animation-delay: var(--delay);
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .album-photo-container::before, .album-photo-container::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.5s ease-in-out;
+            z-index: 2;
+        }
+        .album-photo-container::before {
+            left: 50%;
+            width: 20px;
+            height: 120%;
+            transform: translate(-50%, -10%) rotate(20deg);
+        }
+        .album-photo-container::after {
+            top: 50%;
+            height: 20px;
+            width: 120%;
+            transform: translate(-10%, -50%) rotate(20deg);
+        }
+        .album-photo-container:hover {
+            transform: scale(1.15);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            z-index: 10;
+        }
+        .album-photo-container:hover::before, .album-photo-container:hover::after {
+            opacity: 0;
+            transform: scale(0);
+        }
+        .album-photo-container:hover img {
+            opacity: 1;
+        }
+
+        .album-photo-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 999;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .album-photo-container.fullscreen img {
+            object-fit: contain;
+            border: none;
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+            opacity: 1;
+        }
+        .album-photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.4s 0.2s ease-in-out;
+            z-index: 1;
+            position: relative;
+        }
+        @keyframes popInPhoto {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        .scene-nav-btn {
+            position: absolute;
+            bottom: 2.5rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #ec4899;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .scene-nav-btn:hover {
+            transform: scale(1.15);
+            background-color: #ec4899;
+            color: #fff;
+        }
+        .scene-nav-btn.next {
+            right: 2.5rem;
+        }
+        .scene-nav-btn.prev {
+            left: 2.5rem;
+        }
+
+
+        /* Scene 3 Styles */
+        #scene3 {
+             align-items: center;
+             justify-content: center;
+        }
+        .question-box {
+            position: absolute; 
+            background: white;
+            padding: 5rem 6rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 90%;
+            transition: all 0.3s ease;
+        }
+        .final-message {
+            display: none;
+        }
+        #yesBtn, #noBtn {
+            transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        @keyframes pop-in {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .final-message.active {
+            display: block;
+            animation: pop-in 0.5s ease-out;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center bg-gray-900">
+    <audio id="backgroundMusic" autoplay loop>
+        <source src="phepmau.mp3" type="audio/mp3" >
+    </audio>
+    <div id="scene1" class="scene active text-center p-4">
+        <div id="confetti-container-1" class="absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+        <h1 id="birthdayTitle" class="title-container text-white text-2xl md:text-5xl font-bold"></h1>
+        <p id="friendName" class="text-white text-3xl md:text-4xl mt-4"></p>
+        <button onclick="goToScene(2)" class="mt-12 px-8 py-4 bg-white text-pink-500 font-bold text-lg rounded-full shadow-xl transition-transform transform hover:scale-110 focus:outline-none">Something i want to say</button>
+    </div>
+
+    <div id="scene2" class="scene">
+        <div class="paper-sheet">
+            <div id="paperContent" class="paper-content"></div>
+        </div>
+        <button id="nextBtnScene2" onclick="goToScene(2.5)" class="absolute bottom-8 px-8 py-3 bg-pink-500 text-white font-bold rounded-full shadow-lg transition-all transform hover:scale-105 opacity-0 pointer-events-none" style="transition: opacity 0.5s ease;">See our memories</button>
+    </div>
+
+    <div id="scene2_5" class="scene">
+        <div id="photo-area">
+            <!-- 
+              INSTRUCTIONS: 
+              To add your photos, replace the placeholder URLs in the 'src' attributes below.
+              You can use a local path from your computer.
+              - If the image is in the SAME FOLDER as this HTML file, just use the filename: src="my-photo.jpg"
+              - If it's in another folder, provide the full path: src="C:/Users/YourName/Pictures/photo1.jpg"
+            -->
+            <div class="album-photo-container"><img src="anh1.png" alt="Photo 1"></div>
+            <div class="album-photo-container"><img src="anh2.png" alt="Photo 2"></div>
+            <div class="album-photo-container"><img src="anh3.png" alt="Photo 3"></div>
+            <div class="album-photo-container"><img src="anh4.png" alt="Photo 4"></div>
+            <div class="album-photo-container"><img src="anh5.png" alt="Photo 5"></div>
+            <div class="album-photo-container"><img src="anh6.png" alt="Photo 6"></div>
+            <div class="album-photo-container"><img src="anh7.png" alt ="Photo 7"></div>
+            <div class="album-photo-container"><img src="anh8.png" alt="Photo 8"></div>
+        </div>
+        <button onclick="goToScene(3)" class="scene-nav-btn next"><i class="fa-solid fa-circle-question"></i></button>
+    </div>
+
+
+    <div id="scene3" class="scene p-4">
+        <button onclick="goToScene(2.5)" class="scene-nav-btn prev"><i class="fa-solid fa-images"></i></button>
+        <div id="confetti-container-3" class="absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+        <div class="question-box" id="questionBox">
+            <h2 id="questionTitle" class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 transition-all duration-300"></h2>
+            <div id="options" class="flex flex-wrap justify-center items-center gap-4">
+                <button id="yesBtn" class="px-12 py-5 bg-green-500 text-white font-bold text-xl rounded-lg shadow-md"></button>
+                <button id="noBtn" class="px-8 py-3 bg-red-500 text-white font-bold text-lg rounded-lg shadow-md"></button>
+            </div>
+            <div id="finalMessage" class="final-message">
+                <h2 class="text-4xl font-bold text-green-500">YAY! 🎉</h2>
+                <p class="text-gray-700 mt-3 text-lg">I knew it! Happy birthday for you!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const config = {
+            sceneBackgrounds: {
+                scene1: "https://png.pngtree.com/background/20210711/original/pngtree-pink-cute-wind-birthday-party-illustration-background-picture-image_1147422.jpg",
+                scene2: "background.png",
+                // You can change the album background here with a URL or a local file path
+                scene2_5: "background.png",
+                scene3: "background.png"
+            },
+            friendName: "Võ Hồng Vân",
+            letterContent: `Wishing you a day filled with happiness and a year filled with joy. Happy birthday!\n\nMay all your dreams and wishes come true. You deserve all the wonderful things in this world.  \n\nThank you for being such an amazing friend. The time we met was not too long but it was the most beautiful time in my memory. I'm so grateful for all the laughs and memories we've shared, and I hope we can maintain this friendship forever.\n\nCheers to you!\n- My Best Friend - Võ Hồng Vân`, 
+            initialQuestion: "Do you want to be my best friend?",
+            noButtonResponses: [
+                "Oh no! Are you sure?",
+                "Really? Do you remember our memories?",
+                "Please... for me? 😟😔",
+                "I know that:>",
+            ],
+            yesButtonText: "Yes, of course!",
+            noButtonText: "No"
+        };
+
+        let currentScene = 1;
+        let noClickCount = 0;
+        const CHARACTER_ANIMATION_DELAY = 0.05;
+
+        function createConfetti(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            const confettiCount = 150;
+            const colors = ['#f9a8d4', '#f472b6', '#ec4899', '#d946ef', '#a855f7', '#8b5cf6'];
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = `${Math.random() * 3 + 4}s`;
+                confetti.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(confetti);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set background images for all scenes
+            if (config.sceneBackgrounds) {
+                for (const sceneId in config.sceneBackgrounds) {
+                    const sceneEl = document.getElementById(sceneId.replace('_', '.'));
+                    if (sceneEl && config.sceneBackgrounds[sceneId]) {
+                         sceneEl.style.backgroundImage = `url('${config.sceneBackgrounds[sceneId]}')`;
+                    }
+                }
+            }
+
+            const titleText = "Happy Birthday";
+            const titleContainer = document.getElementById('birthdayTitle');
+            titleText.split('').forEach((char, index) => {
+                const span = document.createElement('span');
+                span.innerText = char === ' ' ? '\u00A0' : char;
+                span.style.setProperty('--i', index);
+                titleContainer.appendChild(span);
+            });
+            
+            document.getElementById('friendName').innerText = config.friendName;
+            document.getElementById('questionTitle').innerText = config.initialQuestion;
+            document.getElementById('yesBtn').innerText = config.yesButtonText;
+            document.getElementById('noBtn').innerText = config.noButtonText;
+
+            createConfetti('confetti-container-1');
+
+            // Add click listener for fullscreen photos
+            const photoContainers = document.querySelectorAll('.album-photo-container');
+            photoContainers.forEach(container => {
+                container.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const isAlreadyFullscreen = container.classList.contains('fullscreen');
+                    photoContainers.forEach(c => c.classList.remove('fullscreen'));
+                    if (!isAlreadyFullscreen) {
+                        container.classList.add('fullscreen');
+                    }
+                });
+            });
+        });
+
+        function startTypingAnimation() {
+            const paperContentDiv = document.getElementById('paperContent');
+            const nextBtn = document.getElementById('nextBtnScene2');
+            paperContentDiv.innerHTML = '';
+            
+            const fullText = config.letterContent;
+            let charCount = 0;
+
+            fullText.split('').forEach((char) => {
+                if (char === '\n') {
+                    paperContentDiv.appendChild(document.createElement('br'));
+                } else {
+                    const span = document.createElement('span');
+                    span.innerText = char;
+                    span.style.setProperty('--delay', `${charCount * CHARACTER_ANIMATION_DELAY}s`);
+                    paperContentDiv.appendChild(span);
+                }
+                charCount++;
+            });
+
+            const totalAnimationTime = (charCount * CHARACTER_ANIMATION_DELAY + 1.5) * 1000;
+            setTimeout(() => {
+                nextBtn.style.opacity = '1';
+                nextBtn.style.pointerEvents = 'auto';
+            }, totalAnimationTime);
+        }
+
+        function goToScene(sceneNumber) {
+            const audio = document.getElementById('backgroundMusic');
+            if (audio.paused) {
+                audio.play().catch(e => console.error("Audio playback failed. This is expected if the user hasn't interacted with the page yet.", e));
+            }
+
+            const currentSceneEl = document.getElementById(`scene${String(currentScene).replace('.', '_')}`);
+            currentSceneEl.style.animation = 'fadeOut 0.5s ease-in-out forwards';
+            
+            setTimeout(() => {
+                currentSceneEl.classList.remove('active');
+                currentScene = sceneNumber;
+                const nextSceneEl = document.getElementById(`scene${String(currentScene).replace('.', '_')}`);
+                nextSceneEl.classList.add('active');
+                nextSceneEl.style.animation = 'fadeIn 1s ease-in-out forwards';
+
+                document.querySelectorAll('.album-photo-container').forEach(c => c.classList.remove('fullscreen'));
+
+                if (sceneNumber === 2) {
+                    setTimeout(() => {
+                        startTypingAnimation();
+                    }, 1500);
+                } else if (sceneNumber === 2.5) {
+                    const photos = document.querySelectorAll('.album-photo-container');
+                    photos.forEach((photo, index) => {
+                        photo.style.setProperty('--delay', `${index * 0.15}s`);
+                    });
+                } else if (sceneNumber === 3) {
+                    createConfetti('confetti-container-3');
+                    const questionBox = document.getElementById('questionBox');
+                    setTimeout(() => {
+                        const boxWidth = questionBox.offsetWidth;
+                        const boxHeight = questionBox.offsetHeight;
+                        questionBox.style.top = `calc(50% - ${boxHeight / 2}px)`;
+                        questionBox.style.left = `calc(50% - ${boxWidth / 2}px)`;
+                    }, 100);
+                }
+            }, 500);
+        }
+
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const questionTitle = document.getElementById('questionTitle');
+        const questionBox = document.getElementById('questionBox');
+        let noScale = 1;
+        let yesScale = 1; 
+
+        noBtn.addEventListener('click', () => {
+            noClickCount++;
+
+            yesScale += 0.22;
+            yesBtn.style.transform = `scale(${yesScale})`;
+            yesBtn.style.zIndex = '7';
+
+            noScale = Math.max(0.1, noScale * 0.8); 
+            noBtn.style.transform = `scale(${noScale})`;
+
+            const responseIndex = Math.min(noClickCount - 1, config.noButtonResponses.length - 1);
+            questionTitle.innerText = config.noButtonResponses[responseIndex];
+            
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            const boxWidth = questionBox.offsetWidth;
+            const boxHeight = questionBox.offsetHeight;
+
+            const randomTop = Math.random() * (screenHeight - boxHeight);
+            const randomLeft = Math.random() * (screenWidth - boxWidth);
+
+            questionBox.style.top = `${randomTop}px`;
+            questionBox.style.left = `${randomLeft}px`;
+        });
+
+        yesBtn.addEventListener('click', () => {
+            document.getElementById('options').style.display = 'none';
+            document.getElementById('questionTitle').style.display = 'none';
+            const finalMessage = document.getElementById('finalMessage');
+            finalMessage.classList.add('active');
+            createConfetti('confetti-container-3');
+        });
+
+    </script>
+</body>
+</html>
